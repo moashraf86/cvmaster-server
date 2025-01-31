@@ -15,9 +15,22 @@ cloudinary.config({
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middlewares here to handle CORS and JSON parsing
-app.use(cors({ origin: process.env.CLIENT_URL }));
-app.use(express.json({ limit: "50mb" }));
+// Configure CORS to allow requests from the specified origin
+const allowedOrigins = ["https://cv-master-client.vercel.app"];
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+};
+
+app.use(cors(corsOptions));
+
+// Middlewares here to handle JSON parsing
+app.use(express.json());
 
 // Define routes here
 app.get("/", (req, res) => {
