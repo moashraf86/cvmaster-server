@@ -50,14 +50,20 @@ app.post("/pdf", async (req, res) => {
   }
 
   try {
-    const browser = await puppeteer.launch({
-      headless: "new",
-      args: ["--no-sandbox", "--disable-setuid-sandbox"],
-      executablePath:
-        process.env.NODE_ENV === "prod"
-          ? await Chromium.executablePath
-          : undefined,
-    });
+    let browser;
+
+    if (process.env.VERCEL) {
+      // 🟢 Use Sparticuz Chromium only in Vercel
+      browser = await puppeteer.launch({
+        args: Chromium.args,
+        executablePath: await Chromium.executablePath,
+        headless: "new",
+      });
+    } else {
+      // 🔵 Use standard Puppeteer locally
+      const puppeteerLocal = await import("puppeteer");
+      browser = await puppeteerLocal.default.launch({ headless: "new" });
+    }
 
     const page = await browser.newPage();
     await page.setContent(htmlContent, { waitUntil: "networkidle0" });
