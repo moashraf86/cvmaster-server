@@ -1,7 +1,8 @@
 import express from "express";
 import cors from "cors";
-import puppeteer from "puppeteer";
-import Chromium from "chrome-aws-lambda";
+import * as puppeteer from "puppeteer";
+import puppeteerCore from "puppeteer-core";
+import Chromium from "@sparticuz/chromium";
 import { v2 as cloudinary } from "cloudinary";
 import dotenv from "dotenv";
 
@@ -62,10 +63,10 @@ app.post("/pdf", async (req, res) => {
 
     // 🔴 Use Puppeteer with Chromium in production
     if (process.env.NODE_ENV === "production") {
-      browser = await puppeteer.launch({
+      browser = await puppeteerCore.launch({
         args: Chromium.args,
-        executablePath: await Chromium.executablePath,
         defaultViewport: Chromium.defaultViewport,
+        executablePath: await Chromium.executablePath(),
         headless: Chromium.headless,
       });
     }
