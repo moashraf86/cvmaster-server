@@ -52,17 +52,22 @@ app.post("/pdf", async (req, res) => {
   try {
     let browser;
 
-    if (process.env.VERCEL) {
-      // 🟢 Use Sparticuz Chromium only in Vercel
+    if (process.env.NODE_ENV === "development") {
+      // 🔵 Use standard Puppeteer locally
+      browser = await puppeteer.launch({
+        headless: true,
+        args: ["--no-sandbox", "--disable-setuid-sandbox"],
+      });
+    }
+
+    // 🔴 Use Puppeteer with Chromium in production
+    if (process.env.NODE_ENV === "production") {
       browser = await puppeteer.launch({
         args: Chromium.args,
         executablePath: await Chromium.executablePath,
-        headless: "new",
+        defaultViewport: Chromium.defaultViewport,
+        headless: Chromium.headless,
       });
-    } else {
-      // 🔵 Use standard Puppeteer locally
-      const puppeteerLocal = await import("puppeteer");
-      browser = await puppeteerLocal.default.launch({ headless: "new" });
     }
 
     const page = await browser.newPage();
