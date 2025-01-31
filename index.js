@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
-import puppeteer, { executablePath } from "puppeteer";
+import puppeteer from "puppeteer";
+import Chromium from "chrome-aws-lambda";
 import { v2 as cloudinary } from "cloudinary";
 import dotenv from "dotenv";
 
@@ -52,7 +53,10 @@ app.post("/pdf", async (req, res) => {
     const browser = await puppeteer.launch({
       headless: "new",
       args: ["--no-sandbox", "--disable-setuid-sandbox"],
-      executablePath: process.env.PUPPETEER_EXECUTABLE_PATH, // Use Vercel's Chromium
+      executablePath:
+        process.env.NODE_ENV === "prod"
+          ? await Chromium.executablePath
+          : undefined,
     });
 
     const page = await browser.newPage();
