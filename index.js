@@ -1,6 +1,6 @@
 import express from "express";
 import cors from "cors";
-import puppeteer from "puppeteer";
+import puppeteer, { executablePath } from "puppeteer";
 import { v2 as cloudinary } from "cloudinary";
 import dotenv from "dotenv";
 
@@ -16,7 +16,10 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Configure CORS to allow requests from the specified origin
-const allowedOrigins = ["https://cv-master-client.vercel.app"];
+const allowedOrigins = [
+  "https://cv-master-client.vercel.app",
+  "http://localhost:5173",
+];
 const corsOptions = {
   origin: function (origin, callback) {
     if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
@@ -49,6 +52,7 @@ app.post("/pdf", async (req, res) => {
     const browser = await puppeteer.launch({
       headless: "new",
       args: ["--no-sandbox", "--disable-setuid-sandbox"],
+      executablePath: process.env.PUPPETEER_EXECUTABLE_PATH, // Use Vercel's Chromium
     });
 
     const page = await browser.newPage();
